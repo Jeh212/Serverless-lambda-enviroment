@@ -1,0 +1,41 @@
+service: lambda-enviroment
+
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  stage: ${opt:stage, "qa"}
+  environment:
+    ${file(./config/env.${self:provider.stage}.json): CREDS}
+  iamRoleStatements:
+    - ${file(./config/serverless/db.iam.role.yaml): CREDS}
+
+
+          
+
+custom: 
+  scheduleRate: rate(1 minute)
+  enabled: true
+  TableName: ${self:provider.environment.DbTableName}
+  dbWriteCapacityUnits: ${self:provider.enviroment.DbWriteCapacityUnits}
+  dbReadCapacityUnits: ${self:provider.enviroment.DbReadCapacityUnits}
+
+
+
+
+resources:
+  Resources:
+    ${file(./config/serverless/resources/dynamo.hero.table.yaml): CREDS}
+
+
+
+functions:
+  commit-message-scheduler:
+    handler: handler.scheduler
+    events:
+      - schedule:
+          rate: ${self:custom.scheduleRate}
+          name: $schedule-commit-message-${self:provider.state}
+          description: Get commit from a web site
+          enabled: ${self:custom.enabled}
