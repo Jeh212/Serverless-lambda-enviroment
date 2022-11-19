@@ -36,6 +36,6 @@ functions:
     events:
       - schedule:
           rate: ${self:custom.scheduleRate}
-          name: $schedule-commit-message-${self:provider.state}
+          name: ${schedule-commit-message-${self:provider.state}
           description: Get commit from a web site
           enabled: ${self:custom.enabled}
